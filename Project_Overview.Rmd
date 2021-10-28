@@ -1,0 +1,15 @@
+Angela Krak
+
+October 27, 2021
+
+Project Overview Update
+
+**General description of the data**
+
+As of right now, I have transcribed the speech of 8 individuals. The transcriptions for each speaker are divided into 5 text files to represent their answers for each of the questions that I asked them. I did not transcribe my own speech, just the participant answers. If more context was needed from a clarifying question that I had posed, this was included in {} in the txt file. Realistically, as I have gone through the transcriptions, it seems that the responses from questions 3-5 will be the most promising for data analysis. While I have not yet started to analyze the demographic data for these speakers, I will aim to have the mean age of the speakers, the gender distribution, and the average length of the sound files for the next progress report. This information is currently stored in a separate spreadsheet, and my progress up to this point has been solely focused on data transcription, not yet combining files. Once the transcription process is complete, whether it be the full data set or a subset, I will use tidyr to clean up the data and prepare it for analysis. My plan is to give myself until the end of this week to complete any more transcriptions, and then I will fully switch gears to data cleaning and analysis for the rest of the semester. I have tried to be as careful as possible when transcribing, maintaining the same conventions across speakers (using [] to indicate laughter, using " " to mark when a speaker quotes or imitates someone, etc.). 
+
+I have also been taking note of a few standout utterances that will be good to examine further in the analysis, as well noting general trends for language attitudes. The frequency analysis will be useful in identifying what terms to use for compiling these utterances, but I have noticed certain trends such as "dialecto inferior" coming up in the speech of multiple individuals. Another thought I had while transcribing is to perhaps run frequency analyses both on the data set as a whole, but also on answers to individual questions, as these could possibly be more meaningful. 
+
+A sample of the transcriptions from speaker 865 (participant codes are random 3-digit numbers) can be found in the data_samples folder in the Repo. 
+
+I am looking forward to moving past the transcription phase and being able to explore trends in the data! 
