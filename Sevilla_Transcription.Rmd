@@ -1,0 +1,320 @@
+---
+title: "Sevilla_Transcription"
+author: "Angela Krak"
+date: "11/15/2021"
+output: 
+  github_document:
+    toc: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path="images/")
+mypath <- "/Users/angelakrak/Desktop/DataScience/Sevilla-Interview-Analysis/Transcriptions"
+setwd(mypath)
+library(tidytext)
+library(tidyverse)
+library(dplyr)
+library(tm)
+library(tidyr)
+```
+
+## R Markdown
+
+```{r}
+mypath <- "/Users/angelakrak/Desktop/DataScience/Sevilla-Interview-Analysis/Transcriptions"
+setwd(mypath) 
+##Testing method on one file
+df <- read.delim("002_Q3.txt", header = FALSE, sep = "\t", dec = ".", encoding = "UTF-8")
+head(df)
+df <- df %>% add_column(fname = "002_Q3.txt")
+head(df)
+
+##Works well, let's try the whole set
+## Making function for file names
+get_df <- function(file) {
+    df = read.delim(file, header = FALSE, sep = "\t", dec = ".",encoding = "UTF-8") 
+    df["fname"] <- file
+    return(df)
+}
+##Generating a list of file names
+flist <- list.files(".", pattern = "*.txt", full.names=TRUE, recursive = TRUE)
+flist
+
+#Looping
+master_df = data.frame('V1' = character(), 'fname' = character()) 
+for(file in flist) {
+    df = get_df(file)
+    rbind(master_df, df) -> master_df
+}
+
+head(master_df) 
+tail(master_df)
+
+##rename column to "line"
+master_df <- master_df %>%
+    rename(line = V1)
+
+##Get participant info
+master_df <- master_df %>%
+mutate(question = str_extract(fname, "Q\\d"))
+##Get question info
+master_df <- master_df %>%
+mutate(participant = str_extract(fname, "\\d+"))
+head(master_df)
+tail(master_df)
+##STOP HERE FOR ANALYSIS OF INDIVIDUAL PHRASES, CONTINUE TO SPLIT WORDS
+
+##fix line numbers
+master_df <- master_df %>%
+   mutate(line.number = row_number()) %>%
+  ungroup()
+
+##Unnest tokens
+master_df <- master_df %>% 
+    unnest_tokens(word, line)
+
+##Reorder column names
+##This will be the format that I use for running frequency analyses. 
+master_df <- master_df %>% 
+    select(word,line.number,fname, participant,question)
+head(master_df)
+tail(master_df)
+```
+```{r}
+##Frequency Analysis
+## load 'stop word' library
+library(tm)
+##get overall frequency of data with stop words included
+## I have to always add head() to avoid calling the whole data set, which cannot be shared
+master_df  %>%  count (word, sort= TRUE) %>% head()
+##looks like the most frequent are all stop words!
+options(repr.plot.width=12, repr.plot.height=8)
+##plot overall frequency
+master_df %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 25) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word)) +
+  geom_col() +
+  labs(y = NULL)
+```
+```{r}
+##separate data frames into questions
+## I could have probably turned this into a function, but decided not to in order to manipulate the filters for each question if necessary. For example, some questions had less tokens, so the frequency filter could be lower. 
+##Q1
+master_df_Q1 <- master_df %>% 
+    select(word,line.number,fname, participant,question) %>%
+    filter(question == "Q1")
+master_df_Q1  %>%  count (word, sort= TRUE) %>% head()
+master_df_Q1 %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 5) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word)) +
+  geom_col() +
+  labs(y = NULL)
+```
+```{r}
+##Q2
+master_df_Q2 <- master_df %>% 
+    select(word,line.number,fname, participant,question) %>%
+    filter(question == "Q2")
+master_df_Q2  %>%  count (word, sort= TRUE) %>% head()
+master_df_Q2 %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 6) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word)) +
+  geom_col() +
+  labs(y = NULL)
+```
+```{r}
+##Q3
+master_df_Q3 <- master_df %>% 
+    select(word,line.number,fname, participant,question) %>%
+    filter(question == "Q3")
+master_df_Q3  %>%  count (word, sort= TRUE) %>% head()
+master_df_Q3 %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 8) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word)) +
+  geom_col() +
+  labs(y = NULL)
+```
+```{r}
+##Q4
+master_df_Q4 <- master_df %>% 
+    select(word,line.number,fname, participant,question) %>%
+    filter(question == "Q4")
+master_df_Q4  %>%  count (word, sort= TRUE) %>% head()
+master_df_Q4 %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 7) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word)) +
+  geom_col() +
+  labs(y = NULL)
+
+```
+```{r}
+##Q5
+master_df_Q5 <- master_df %>% 
+    select(word,line.number,fname, participant,question) %>%
+    filter(question == "Q5")
+master_df_Q5  %>%  count (word, sort= TRUE) %>% head()
+master_df_Q5 %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 7) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word)) +
+  geom_col() +
+  labs(y = NULL)
+```
+```{r}
+##Look at Spanish stop words list
+list(stopwords(kind = "es"))
+```
+
+
+```{r}
+##Make list for stop words
+custom_stop_words <- bind_rows(stop_words, tibble(word = tm::stopwords("spanish"),
+                                          lexicon = "custom"))
+##Add more stop words
+word <- c("entonces", "pues", "si", "bueno", "así", "bien", "cada", "risa", "toda", "mucho", "mucha", "va", "van", "muchas", "además", "eh", "da", "sé", "casi", "todas")
+lexicon <- rep("custom", times=length(word))
+new_stop_words <- data.frame(word, lexicon)
+names(new_stop_words) <- c("word", "lexicon")
+custom_stop_words <-bind_rows(custom_stop_words, new_stop_words)
+
+##Remove stop words from master_df and save to master_df_nostop
+master_df_nostop <- master_df %>%
+  anti_join(custom_stop_words %>% 
+              filter(lexicon=="custom"))
+##Get frequency for overall data frame
+master_df_nostop  %>%  count (word, sort= TRUE) %>% head()
+```
+```{r}
+##Plot overall frequency results for nostop
+master_df_nostop %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 10) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word)) +
+  geom_col(color="black") +
+  labs(y = NULL) +
+  theme(text= element_text(size=12))
+```
+
+
+```{r}
+##Separate data frames from nostop 
+##Q1
+master_df_Q1_nostop <- master_df_nostop %>% 
+    select(word,line.number,fname, participant,question) %>%
+    filter(question == "Q1")
+master_df_Q1_nostop  %>%  count (word, sort= TRUE) %>% head()
+master_df_Q1_nostop %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 2) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word)) +
+  geom_col() +
+  labs(y = NULL)
+```
+
+
+```{r}
+##Separate data frames from nostop 
+##Q2
+master_df_Q2_nostop <- master_df_nostop %>% 
+    select(word,line.number,fname, participant,question) %>%
+    filter(question == "Q2")
+master_df_Q2_nostop  %>%  count (word, sort= TRUE) %>% head()
+master_df_Q2_nostop %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 4) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word, fill=word)) +
+  geom_col(color="black") +
+  labs(y = NULL) +
+  theme(text= element_text(size=12))
+```
+
+
+```{r}
+##Separate data frames from nostop 
+##Q3
+master_df_Q3_nostop <- master_df_nostop %>% 
+    select(word,line.number,fname, participant,question) %>%
+    filter(question == "Q3")
+master_df_Q3_nostop  %>%  count (word, sort= TRUE) %>% head()
+master_df_Q3_nostop %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 4) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word, fill=word)) +
+  geom_col(color="black") +
+  labs(y = NULL) +
+  theme(text= element_text(size=12))
+```
+
+
+```{r}
+##Separate data frames from nostop 
+##Q4
+master_df_Q4_nostop <- master_df_nostop %>% 
+    select(word,line.number,fname, participant,question) %>%
+    filter(question == "Q4")
+master_df_Q4_nostop  %>%  count (word, sort= TRUE) %>% head()
+master_df_Q4_nostop %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 4) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word, fill=word)) +
+  geom_col(color="black") +
+  labs(y = NULL) +
+  theme(text= element_text(size=12))
+```
+
+
+```{r}
+##Separate data frames from nostop 
+##Q5
+master_df_Q5_nostop <- master_df_nostop %>% 
+    select(word,line.number,fname, participant,question) %>%
+    filter(question == "Q5")
+master_df_Q5_nostop  %>%  count (word, sort= TRUE) %>% head()
+master_df_Q5_nostop %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 4) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word, fill=word)) +
+  geom_col(color="black") +
+  labs(y = NULL) +
+  theme(text= element_text(size=12))
+```
+
+
+```{r}
+library(wordcloud)
+library(dplyr)
+master_df_nostop %>%
+  count(word, sort = TRUE) %>%
+  dplyr::filter(n > 8 & word != "master_df_nostop") %>%
+  with(wordcloud::wordcloud(words = word, 
+                            freq = n, 
+                            max.words = 300,
+                            random.order = FALSE,
+                            rot.per = 0.3,
+                            colors = brewer.pal(8,"Dark2")))
+```
+
+
+```{r}
+sessionInfo()
+```
+
+
+```{r}
